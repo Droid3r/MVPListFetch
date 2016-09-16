@@ -1,7 +1,9 @@
-package akshay.example.com.mvplistfetch;
+package akshay.example.com.mvplistfetch.ui.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import akshay.example.com.mvplistfetch.R;
 
 public class ItemsActivity extends AppCompatActivity {
 
