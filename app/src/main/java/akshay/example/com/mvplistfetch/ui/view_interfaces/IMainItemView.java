@@ -11,4 +11,6 @@ public interface IMainItemView {
 
     void onItemsFetchedSuccess(List<Items> itemList);
     void onItemsFetchedError(String message);
+
+    void launchDetailedItemActivity(int position);
 }

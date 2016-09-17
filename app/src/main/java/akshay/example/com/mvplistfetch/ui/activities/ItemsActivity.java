@@ -1,5 +1,6 @@
 package akshay.example.com.mvplistfetch.ui.activities;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -17,7 +18,9 @@ import akshay.example.com.mvplistfetch.R;
 import akshay.example.com.mvplistfetch.model.pojo.Items;
 import akshay.example.com.mvplistfetch.presenters.ItemsPresenter;
 import akshay.example.com.mvplistfetch.ui.adapters.ItemsListAdapter;
+import akshay.example.com.mvplistfetch.ui.decorators.VerticalSpaceItemDecorator;
 import akshay.example.com.mvplistfetch.ui.view_interfaces.IMainItemView;
+import akshay.example.com.mvplistfetch.util.AppConstants;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -30,9 +33,11 @@ public class ItemsActivity extends AppCompatActivity implements IMainItemView{
     RecyclerView mItemsRecyclerView;
 
     @InjectView(R.id.error_view)
-    TextView errorView;
+    TextView tvErrorView;
 
     ItemsListAdapter mItemsListAdapter;
+
+    private List<Items> mItemsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,23 +50,33 @@ public class ItemsActivity extends AppCompatActivity implements IMainItemView{
 
         initRecyclerView();
 
-
-        mItemsPresenter.fetchItems(this);
+        mItemsPresenter.setItemsInteractor(this);
+        mItemsPresenter.fetchItems();
     }
 
     public void initRecyclerView() {
 
         mItemsRecyclerView.setHasFixedSize(true);
         mItemsRecyclerView.setLayoutManager(new LinearLayoutManager(mItemsRecyclerView.getContext()));
+        mItemsRecyclerView.addItemDecoration(
+                new VerticalSpaceItemDecorator(AppConstants.VERTICAL_ITEM_SPACE, this));
         mItemsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mItemsListAdapter = new ItemsListAdapter(this);
+        mItemsListAdapter = new ItemsListAdapter(this, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = (int)v.getTag();
+
+                mItemsPresenter.onItemRowClick(position);
+            }
+        });
         mItemsRecyclerView.setAdapter(mItemsListAdapter);
     }
 
     @Override
     public void onItemsFetchedSuccess(List<Items> itemList) {
         hideError();
-        mItemsListAdapter.addItems(itemList);
+        mItemsList = itemList;
+        mItemsListAdapter.addItems(mItemsList);
     }
 
     @Override
@@ -70,13 +85,30 @@ public class ItemsActivity extends AppCompatActivity implements IMainItemView{
         showError();
     }
 
+    @Override
+    public void launchDetailedItemActivity(int position) {
+
+        Items item = mItemsList.get(position);
+        String title = item.getTitle();
+        String description = item.getDescription();
+        String imageUrl = item.getImage();
+
+        Intent detailActivityIntent = new Intent(this, ItemDetailActivity.class);
+
+        detailActivityIntent.putExtra(AppConstants.ITEM_TITLE, title);
+        detailActivityIntent.putExtra(AppConstants.ITEM_DESCRIPTION, description);
+        detailActivityIntent.putExtra(AppConstants.ITEM_IMAGE_URL, imageUrl);
+        startActivity(detailActivityIntent);
+
+    }
+
     private void hideError() {
         mItemsRecyclerView.setVisibility(View.VISIBLE);
-        errorView.setVisibility(View.GONE);
+        tvErrorView.setVisibility(View.GONE);
     }
 
     private void showError() {
         mItemsRecyclerView.setVisibility(View.GONE);
-        errorView.setVisibility(View.VISIBLE);
+        tvErrorView.setVisibility(View.VISIBLE);
     }
 }

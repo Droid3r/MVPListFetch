@@ -24,10 +24,16 @@ public class ItemsPresenter implements IOnItemLoadFinishedListener {
 
     }
 
-    public void fetchItems(IMainItemView mainItemView) {
-
+    public void setItemsInteractor(IMainItemView mainItemView) {
         this.mMainItemView = mainItemView;
+    }
+
+    public void fetchItems() {
         itemsInteractor.loadItemsFromNetwork(this);
+    }
+
+    public void onItemRowClick(int position) {
+        mMainItemView.launchDetailedItemActivity(position);
     }
 
     @Override
