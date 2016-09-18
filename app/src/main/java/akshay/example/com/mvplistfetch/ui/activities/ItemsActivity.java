@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.squareup.okhttp.internal.Util;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -21,6 +23,7 @@ import akshay.example.com.mvplistfetch.ui.adapters.ItemsListAdapter;
 import akshay.example.com.mvplistfetch.ui.decorators.VerticalSpaceItemDecorator;
 import akshay.example.com.mvplistfetch.ui.view_interfaces.IMainItemView;
 import akshay.example.com.mvplistfetch.util.AppConstants;
+import akshay.example.com.mvplistfetch.util.Utils;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -52,6 +55,8 @@ public class ItemsActivity extends AppCompatActivity implements IMainItemView{
 
         mItemsPresenter.setItemsInteractor(this);
         mItemsPresenter.fetchItems();
+        Utils.showSimpleProgressDialog(this, getResources().getString(R.string.loading_data)
+                , getResources().getString(R.string.loading_msg), false);
     }
 
     public void initRecyclerView() {
@@ -74,6 +79,7 @@ public class ItemsActivity extends AppCompatActivity implements IMainItemView{
 
     @Override
     public void onItemsFetchedSuccess(List<Items> itemList) {
+        Utils.removeSimpleProgressDialog();
         hideError();
         mItemsList = itemList;
         mItemsListAdapter.addItems(mItemsList);
@@ -82,6 +88,7 @@ public class ItemsActivity extends AppCompatActivity implements IMainItemView{
     @Override
     public void onItemsFetchedError(String message) {
         //TODO propagate the error message on the screen
+        Utils.removeSimpleProgressDialog();
         showError();
     }
 
